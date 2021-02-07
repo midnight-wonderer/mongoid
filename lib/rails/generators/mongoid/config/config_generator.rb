@@ -15,7 +15,14 @@ module Mongoid
       end
 
       def app_name
-        Rails.application.class.module_parent_name.underscore
+        Rails.application.class.tap do |klass|
+          if klass.respond_to? :module_parent_name
+            break klass.module_parent_name.underscore
+          end
+          # Removed in Rails 6
+          # https://api.rubyonrails.org/v5.2/classes/Module.html#method-i-parent
+          break klass.parent.to_s.underscore
+        end
       end
 
       def create_config_file
